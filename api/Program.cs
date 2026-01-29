@@ -11,7 +11,7 @@ using Microsoft.VisualBasic;
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
-// builder.WebHost.UseUrls("http://127.0.0.1:5001");
+builder.WebHost.UseUrls("http://127.0.0.1:5001");
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -25,6 +25,9 @@ builder.Services.AddHostedService<AutoAddService>();
 var app = builder.Build();
 app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 app.MapHub<SongRequestManager>("/songRequestManager");
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 
 var hub = app.Services.GetRequiredService<IHubContext<SongRequestManager>>();
 
@@ -150,13 +153,6 @@ async Task removeSongAsync(string user, string songId, bool broadcast = true)
         PlaylistManager.AllSongs.RemoveAt(index);
     }
 }
-
-
-app.MapGet("/", async () =>
-{
-    APIManager.accessToken = await APIManager.AccessToken();
-    return $"Spotify API Proxy is running. Access Token: {APIManager.accessToken}";
-});
 
 
 app.MapGet("/ping", () =>
